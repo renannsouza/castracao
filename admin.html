@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Cadastros de Castração | Betim</title>
+<style>
+  :root {
+    --paper: #F2F5F1;
+    --surface: #FFFFFF;
+    --ink: #1B2420;
+    --ink-soft: #4B564F;
+    --ink-faint: #7C8A81;
+    --line: #DBE3DC;
+    --line-strong: #C3D0C7;
+    --accent: #0E6F5C;
+    --accent-strong: #0A5748;
+    --accent-soft: #E3F1EC;
+    --danger: #A5281E;
+    --danger-soft: #FBEAE8;
+    --radius-card: 4px;
+    --radius-control: 6px;
+    --font-display: Georgia, "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+    --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #101B16;
+      --surface: #16241D;
+      --ink: #E9F2ED;
+      --ink-soft: #AEC2B7;
+      --ink-faint: #7E9488;
+      --line: #24382E;
+      --line-strong: #2E4A3C;
+      --accent: #3CBE99;
+      --accent-strong: #57CDA9;
+      --accent-soft: #17332A;
+      --danger: #E4837A;
+      --danger-soft: #34201E;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+  }
+
+  .login-page {
+    max-width: 380px;
+    margin: 0 auto;
+    padding: 80px 20px;
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 600;
+    margin: 0 0 4px;
+  }
+
+  .subtitle {
+    color: var(--ink-soft);
+    font-size: 14.5px;
+    margin: 0 0 24px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    padding: 24px;
+  }
+
+  .field { margin-bottom: 16px; }
+  .field:last-child { margin-bottom: 0; }
+
+  label {
+    display: block;
+    font-size: 13.5px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  input[type="email"], input[type="password"], input[type="text"] {
+    width: 100%;
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-control);
+    padding: 10px 12px;
+  }
+
+  input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+
+  button {
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 700;
+    border: none;
+    border-radius: var(--radius-control);
+    padding: 12px 16px;
+    cursor: pointer;
+  }
+
+  button.primary {
+    width: 100%;
+    background: var(--accent);
+    color: #fff;
+  }
+  button.primary:hover { background: var(--accent-strong); }
+  button.primary:disabled { opacity: 0.6; cursor: default; }
+
+  button.ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border: 1px solid var(--line-strong);
+  }
+
+  .notice {
+    display: none;
+    font-size: 13.5px;
+    padding: 10px 12px;
+    border-radius: var(--radius-control);
+    margin-top: 14px;
+    background: var(--danger-soft);
+    color: var(--danger);
+    border: 1px solid var(--danger);
+  }
+  .notice.show { display: block; }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .stat {
+    background: var(--accent-soft);
+    border-radius: var(--radius-control);
+    padding: 12px 14px;
+  }
+  .stat .k { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-strong); font-weight: 700; }
+  .stat .v { font-size: 22px; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+
+  .toolbar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+
+  .toolbar input {
+    flex: 1;
+    min-width: 200px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    padding: 9px 12px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+    color: var(--ink);
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    white-space: nowrap;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  th {
+    color: var(--ink-faint);
+    font-weight: 600;
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: var(--paper);
+    position: sticky;
+    top: 0;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  .empty, .loading {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--ink-faint);
+    font-size: 14px;
+  }
+
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<div id="loginPage" class="login-page">
+  <h1>Área administrativa</h1>
+  <p class="subtitle">Cadastros de interesse — Mutirão de Castração, Betim/MG</p>
+  <form id="loginForm" class="card">
+    <div class="field">
+      <label for="loginEmail">E-mail</label>
+      <input type="email" id="loginEmail" autocomplete="username" required>
+    </div>
+    <div class="field">
+      <label for="loginPassword">Senha</label>
+      <input type="password" id="loginPassword" autocomplete="current-password" required>
+    </div>
+    <div class="field">
+      <button type="submit" class="primary" id="loginBtn">Entrar</button>
+    </div>
+    <div class="notice" id="loginNotice">E-mail ou senha inválidos.</div>
+  </form>
+</div>
+
+<div id="dashboardPage" class="page hidden">
+  <div class="topbar">
+    <div>
+      <h1>Cadastros</h1>
+      <p class="subtitle">Mutirão de Castração Gratuita — Betim/MG</p>
+    </div>
+    <button class="ghost" id="logoutBtn">Sair</button>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="toolbar">
+    <input type="text" id="searchInput" placeholder="Buscar por nome, CPF, telefone ou animal…">
+    <button class="ghost" id="refreshBtn">Atualizar</button>
+  </div>
+
+  <div class="table-wrap">
+    <table id="dataTable">
+      <thead>
+        <tr>
+          <th>Data cadastro</th>
+          <th>Tutor</th>
+          <th>CPF</th>
+          <th>Telefone</th>
+          <th>Regional</th>
+          <th>Animal</th>
+          <th>Espécie</th>
+          <th>Raça</th>
+          <th>Qtd</th>
+          <th>Dia procedimento</th>
+          <th>Como soube</th>
+        </tr>
+      </thead>
+      <tbody id="dataBody"></tbody>
+    </table>
+    <div class="loading hidden" id="loadingRow">Carregando…</div>
+    <div class="empty hidden" id="emptyRow">Nenhum cadastro encontrado.</div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="supabase-config.js"></script>
+<script>
+  var supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  var loginPage = document.getElementById('loginPage');
+  var dashboardPage = document.getElementById('dashboardPage');
+  var loginForm = document.getElementById('loginForm');
+  var loginBtn = document.getElementById('loginBtn');
+  var loginNotice = document.getElementById('loginNotice');
+  var logoutBtn = document.getElementById('logoutBtn');
+  var refreshBtn = document.getElementById('refreshBtn');
+  var searchInput = document.getElementById('searchInput');
+  var dataBody = document.getElementById('dataBody');
+  var loadingRow = document.getElementById('loadingRow');
+  var emptyRow = document.getElementById('emptyRow');
+  var statsEl = document.getElementById('stats');
+
+  var allRows = [];
+
+  function showDashboard() {
+    loginPage.classList.add('hidden');
+    dashboardPage.classList.remove('hidden');
+    loadCadastros();
+  }
+
+  function showLogin() {
+    dashboardPage.classList.add('hidden');
+    loginPage.classList.remove('hidden');
+  }
+
+  function escapeHtml(v) {
+    var div = document.createElement('div');
+    div.textContent = v == null ? '' : String(v);
+    return div.innerHTML;
+  }
+
+  function formatDate(iso) {
+    var d = new Date(iso);
+    return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function renderStats(rows) {
+    var total = rows.length;
+    var caninos = rows.filter(function (r) { return r.especie === 'Canino'; }).length;
+    var felinos = rows.filter(function (r) { return r.especie === 'Felino'; }).length;
+    var porDia = {};
+    rows.forEach(function (r) {
+      porDia[r.data_procedimento] = (porDia[r.data_procedimento] || 0) + 1;
+    });
+    var diaHtml = Object.keys(porDia).sort().map(function (dia) {
+      return '<div class="stat"><div class="k">' + escapeHtml(dia) + '</div><div class="v">' + porDia[dia] + '</div></div>';
+    }).join('');
+
+    statsEl.innerHTML =
+      '<div class="stat"><div class="k">Total de cadastros</div><div class="v">' + total + '</div></div>' +
+      '<div class="stat"><div class="k">Caninos</div><div class="v">' + caninos + '</div></div>' +
+      '<div class="stat"><div class="k">Felinos</div><div class="v">' + felinos + '</div></div>' +
+      diaHtml;
+  }
+
+  function renderRows(rows) {
+    if (rows.length === 0) {
+      dataBody.innerHTML = '';
+      emptyRow.classList.remove('hidden');
+      return;
+    }
+    emptyRow.classList.add('hidden');
+    dataBody.innerHTML = rows.map(function (r) {
+      return '<tr>' +
+        '<td>' + escapeHtml(formatDate(r.created_at)) + '</td>' +
+        '<td>' + escapeHtml(r.nome_tutor) + '</td>' +
+        '<td>' + escapeHtml(r.cpf) + '</td>' +
+        '<td>' + escapeHtml(r.telefone) + '</td>' +
+        '<td>' + escapeHtml(r.regional) + '</td>' +
+        '<td>' + escapeHtml(r.animal_nome) + '</td>' +
+        '<td>' + escapeHtml(r.especie) + '</td>' +
+        '<td>' + escapeHtml(r.raca) + '</td>' +
+        '<td>' + escapeHtml(r.quantidade) + '</td>' +
+        '<td>' + escapeHtml(r.data_procedimento) + '</td>' +
+        '<td>' + escapeHtml(r.como_soube) + '</td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  function applyFilter() {
+    var q = searchInput.value.trim().toLowerCase();
+    if (!q) {
+      renderRows(allRows);
+      return;
+    }
+    var filtered = allRows.filter(function (r) {
+      return (r.nome_tutor + ' ' + r.cpf + ' ' + r.telefone + ' ' + r.animal_nome)
+        .toLowerCase().indexOf(q) !== -1;
+    });
+    renderRows(filtered);
+  }
+
+  function loadCadastros() {
+    loadingRow.classList.remove('hidden');
+    emptyRow.classList.add('hidden');
+    dataBody.innerHTML = '';
+    supabaseClient.from('cadastros').select('*').order('created_at', { ascending: false })
+      .then(function (result) {
+        loadingRow.classList.add('hidden');
+        if (result.error) {
+          console.error(result.error);
+          emptyRow.textContent = 'Erro ao carregar cadastros: ' + result.error.message;
+          emptyRow.classList.remove('hidden');
+          return;
+        }
+        allRows = result.data;
+        renderStats(allRows);
+        applyFilter();
+      });
+  }
+
+  searchInput.addEventListener('input', applyFilter);
+  refreshBtn.addEventListener('click', loadCadastros);
+
+  loginForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    loginNotice.classList.remove('show');
+    loginBtn.disabled = true;
+    loginBtn.textContent = 'Entrando…';
+
+    supabaseClient.auth.signInWithPassword({
+      email: document.getElementById('loginEmail').value,
+      password: document.getElementById('loginPassword').value
+    }).then(function (result) {
+      loginBtn.disabled = false;
+      loginBtn.textContent = 'Entrar';
+      if (result.error) {
+        loginNotice.classList.add('show');
+        return;
+      }
+      showDashboard();
+    });
+  });
+
+  logoutBtn.addEventListener('click', function () {
+    supabaseClient.auth.signOut().then(function () { showLogin(); });
+  });
+
+  supabaseClient.auth.getSession().then(function (result) {
+    if (result.data.session) {
+      showDashboard();
+    } else {
+      showLogin();
+    }
+  });
+</script>
+</body>
+</html>

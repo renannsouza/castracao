@@ -9,6 +9,7 @@ var cpfNotice = document.getElementById('cpfNotice');
 var cepInput = document.getElementById('cep');
 var telInput = document.getElementById('telefone');
 var nascimentoInput = document.getElementById('nascimento');
+var nascimentoNotice = document.getElementById('nascimentoNotice');
 
 function onlyDigits(v) { return v.replace(/\D/g, ''); }
 
@@ -29,6 +30,30 @@ function maskPhone(v) {
   if (v.length <= 6) return v.replace(/^(\d{2})(\d*)/, '($1) $2');
   if (v.length <= 10) return v.replace(/^(\d{2})(\d{4})(\d*)/, '($1) $2-$3');
   return v.replace(/^(\d{2})(\d{5})(\d*)/, '($1) $2-$3');
+}
+
+function maskDate(v) {
+  return onlyDigits(v).slice(0, 8)
+    .replace(/(\d{2})(\d)/, '$1/$2')
+    .replace(/(\d{2})(\d{1,4})$/, '$1/$2');
+}
+
+var MIN_BIRTH_DATE = new Date(1920, 0, 1);
+
+function parseBirthDate(v) {
+  var m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(v);
+  if (!m) return null;
+  var day = parseInt(m[1], 10), month = parseInt(m[2], 10), year = parseInt(m[3], 10);
+  var d = new Date(year, month - 1, day);
+  if (d.getFullYear() !== year || d.getMonth() !== month - 1 || d.getDate() !== day) return null;
+  var today = new Date(); today.setHours(0, 0, 0, 0);
+  if (d < MIN_BIRTH_DATE || d > today) return null;
+  return d;
+}
+
+function isoFromBirthDate(v) {
+  var m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(v);
+  return m[3] + '-' + m[2] + '-' + m[1];
 }
 
 function isValidCPF(cpfRaw) {
@@ -54,6 +79,12 @@ cpfInput.addEventListener('input', function () {
 
 cepInput.addEventListener('input', function () { this.value = maskCEP(this.value); });
 telInput.addEventListener('input', function () { this.value = maskPhone(this.value); });
+
+nascimentoInput.addEventListener('input', function () {
+  this.value = maskDate(this.value);
+  nascimentoNotice.classList.remove('show');
+  this.setCustomValidity('');
+});
 
 document.querySelectorAll('#regForm input, #regForm select, #regForm textarea').forEach(function (el) {
   el.addEventListener('blur', function () { this.classList.add('touched'); });
@@ -97,6 +128,14 @@ form.addEventListener('submit', function (e) {
     cpfInput.setCustomValidity('');
   }
 
+  var birthDate = parseBirthDate(nascimentoInput.value);
+  if (!birthDate) {
+    nascimentoInput.setCustomValidity('Data de nascimento inválida');
+    nascimentoNotice.classList.add('show');
+  } else {
+    nascimentoInput.setCustomValidity('');
+  }
+
   if (!form.checkValidity() || !nascimentoInput.checkValidity()) {
     document.querySelectorAll('#regForm input, #regForm select, #regForm textarea').forEach(function (el) {
       el.classList.add('touched');
@@ -113,7 +152,7 @@ form.addEventListener('submit', function (e) {
     autoriza_lgpd: true,
     nome_tutor: document.getElementById('nome').value,
     cpf: cpfInput.value,
-    data_nascimento: nascimentoInput.value,
+    data_nascimento: isoFromBirthDate(nascimentoInput.value),
     rg_cnh: document.getElementById('rg').value,
     regional: document.getElementById('regional').value,
     cep: cepInput.value,

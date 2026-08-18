@@ -75,6 +75,25 @@
     font-weight: 600;
   }
 
+  .admin-bar {
+    text-align: right;
+    margin-bottom: 8px;
+  }
+
+  .admin-bar a {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    text-decoration: none;
+  }
+
+  .admin-bar a:hover {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+
   h1 {
     font-family: var(--font-display);
     font-size: clamp(28px, 5vw, 38px);
@@ -502,6 +521,8 @@
 </head>
 <body>
 <div class="page">
+
+  <div class="admin-bar"><a href="admin.html">Admin</a></div>
 
   <header class="masthead">
     <div class="eyebrow">Prefeitura de Betim · SEPA · VALE · SEMAD · ONG AJUDA</div>
